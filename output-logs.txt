@@ -1,0 +1,76 @@
+[+] Generated learned_full_exp_metrics/train_000_c0.65.csv (corr~0.65)
+[+] Generated learned_full_exp_metrics/train_001_c0.51.csv (corr~0.51)
+[+] Generated learned_full_exp_metrics/train_002_c0.65.csv (corr~0.65)
+[+] Generated learned_full_exp_metrics/train_003_c0.99.csv (corr~0.99)
+[+] Generated learned_full_exp_metrics/train_004_c0.47.csv (corr~0.47)
+[+] Generated learned_full_exp_metrics/train_005_c0.13.csv (corr~0.13)
+[+] Generated learned_full_exp_metrics/train_006_c0.49.csv (corr~0.49)
+[+] Generated learned_full_exp_metrics/train_007_c0.14.csv (corr~0.14)
+[+] Generated learned_full_exp_metrics/train_008_c0.46.csv (corr~0.46)
+[+] Generated learned_full_exp_metrics/train_009_c0.03.csv (corr~0.03)
+[+] Generated learned_full_exp_metrics/train_010_c0.54.csv (corr~0.54)
+[+] Generated learned_full_exp_metrics/train_011_c0.24.csv (corr~0.24)
+[+] Generated learned_full_exp_metrics/train_012_c0.77.csv (corr~0.77)
+[+] Generated learned_full_exp_metrics/train_013_c0.86.csv (corr~0.86)
+[+] Generated learned_full_exp_metrics/train_014_c0.46.csv (corr~0.46)
+[+] Generated learned_full_exp_metrics/train_015_c0.58.csv (corr~0.58)
+[+] Generated learned_full_exp_metrics/train_016_c0.66.csv (corr~0.66)
+[+] Generated learned_full_exp_metrics/train_017_c0.35.csv (corr~0.35)
+[+] Generated learned_full_exp_metrics/train_018_c0.10.csv (corr~0.10)
+[+] Generated learned_full_exp_metrics/train_019_c0.86.csv (corr~0.86)
+[+] Generated learned_full_exp_metrics/train_020_c0.40.csv (corr~0.40)
+[+] Generated learned_full_exp_metrics/train_021_c0.01.csv (corr~0.01)
+[+] Generated learned_full_exp_metrics/train_022_c0.34.csv (corr~0.34)
+[+] Generated learned_full_exp_metrics/train_023_c0.09.csv (corr~0.09)
+[+] Generated learned_full_exp_metrics/train_024_c0.54.csv (corr~0.54)
+[+] Generated learned_full_exp_metrics/train_025_c0.52.csv (corr~0.52)
+[+] Generated learned_full_exp_metrics/train_026_c0.30.csv (corr~0.30)
+[+] Generated learned_full_exp_metrics/train_027_c0.05.csv (corr~0.05)
+[+] Generated learned_full_exp_metrics/train_028_c0.50.csv (corr~0.50)
+[+] Generated learned_full_exp_metrics/train_029_c0.56.csv (corr~0.56)
+[*] Training autoencoder...
+Epoch 1/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 5s 10ms/step - loss: 0.9802
+Epoch 2/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5922
+Epoch 3/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5890
+Epoch 4/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5841
+Epoch 5/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5826
+Epoch 6/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5798
+Epoch 7/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.5785
+Epoch 8/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.5785
+Epoch 9/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.5783
+Epoch 10/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - loss: 0.5786
+Epoch 11/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 3ms/step - loss: 0.5764
+Epoch 12/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5750
+Epoch 13/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5750
+Epoch 14/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5752
+Epoch 15/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5762
+Epoch 16/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5732
+Epoch 17/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 0.5732
+Epoch 18/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 0s 3ms/step - loss: 0.5721
+Epoch 19/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 5ms/step - loss: 0.5774
+Epoch 20/20
+147/147 ━━━━━━━━━━━━━━━━━━━━ 1s 3ms/step - loss: 0.5747
+ corr Accuracy Precision Recall    F1   MSE  RMSE
+0.010    0.748     0.727  0.981 0.835 0.012 0.109
+0.300    0.759     0.736  0.986 0.843 0.015 0.123
+0.750    0.756     0.725  0.993 0.838 0.021 0.145
+0.990    0.777     0.750  0.993 0.855 0.028 0.166
