@@ -1,3 +1,9 @@
+Where did I learn from?
+
+https://medium.com/@c17hawke/introduction-to-autoencoders-theory-and-implementation-72fed7cf2f70
+
+The project mainly follows up on the idea that was carried out for IMA312 Information Theory and Coding 
+
 ## To Run This
 
 - Git clone the repo: `git clone https://github.com/NotCleo/CSE311-NeuralNetworkBasedCompression.git`
