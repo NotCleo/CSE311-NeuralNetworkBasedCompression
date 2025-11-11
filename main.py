@@ -1,14 +1,10 @@
-import os, gzip, pickle, time, random, heapq
+import os, gzip, pickle, time, random, heapq, zipfile
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
-from pathlib import Path
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, mean_squared_error)
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, mean_squared_error
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-
-
-# Taken from a standard Huffman Encoding Python script that I Had found online
 
 class HuffmanNode:
     def __init__(self, sym=None, freq=0, left=None, right=None):
@@ -51,7 +47,7 @@ def generate_nonlinear_logs(n_rows=2500, n_cols=8, corr_strength=0.5, seed=0, fi
         pd.DataFrame(X, columns=[f"f{i}" for i in range(n_cols)]).to_csv(filename, index=False)
         print(f"[+] Generated {filename} (corr~{corr_strength:.2f})")
     return X
-    
+
 def build_autoencoder(input_dim, latent_dim=4):
     inp = keras.Input(shape=(input_dim,))
     x = layers.Dense(64, activation="relu")(inp)
@@ -62,16 +58,14 @@ def build_autoencoder(input_dim, latent_dim=4):
     out = layers.Dense(input_dim, activation="sigmoid")(y)
     ae = keras.Model(inp, out, name="autoencoder")
     encoder = keras.Model(inp, z, name="encoder")
-
     latent_in = keras.Input(shape=(latent_dim,))
     dec_x = latent_in
     for layer in ae.layers[-3:]:
         dec_x = layer(dec_x)
     decoder = keras.Model(latent_in, dec_x, name="decoder")
-
     ae.compile(optimizer=keras.optimizers.Adam(1e-3), loss="mse")
     return ae, encoder, decoder
-  
+
 def compress_latent(Z):
     nrows, nd = Z.shape
     Zq = np.zeros_like(Z, dtype=np.uint8)
@@ -87,7 +81,7 @@ def compress_latent(Z):
     raw = Zq.tobytes()
     t0 = time.time(); comp, code = huffman_encode(raw); t1 = time.time()
     return comp, len(comp), scales, (t1 - t0)
-  
+
 def gzip_stats(path):
     raw = open(path, "rb").read()
     t0 = time.time(); gz = gzip.compress(raw, 9); t1 = time.time()
@@ -110,49 +104,36 @@ def reconstruction_metrics(X_true, X_pred, threshold=0.5):
     rmse = np.sqrt(mse)
     return dict(Accuracy=acc, Precision=prec, Recall=rec, F1=f1, AUC=auc, MSE=mse, RMSE=rmse)
 
-
-
-# Here Starts the Main work!!!!
-
 def run_full_experiment(workdir="learned_full_exp_metrics", n_train=20, rows_train=2500, rows_test=2500, latent_dim=4):
-  # So we made a big dataset of latent dimension size of 4
     os.makedirs(workdir, exist_ok=True)
-
     paths = []
     for i in range(n_train):
         c = random.uniform(0, 1)
         p = os.path.join(workdir, f"train_{i:03d}_c{c:.2f}.csv")
         generate_nonlinear_logs(rows_train, 8, c, seed=i, filename=p)
         paths.append(p)
-
     big = np.concatenate([pd.read_csv(p).values for p in paths])
     scaler = StandardScaler().fit(big)
     Xs = scaler.transform(big)
-
     ae, enc, dec = build_autoencoder(Xs.shape[1], latent_dim)
     print("[*] Training autoencoder...")
     ae.fit(Xs, Xs, epochs=20, batch_size=512, verbose=1, shuffle=True)
-
     results = []
     for c in [0.01, 0.30, 0.75, 0.99]:
         test_path = os.path.join(workdir, f"test_c{c:.2f}.csv")
         df = pd.DataFrame(generate_nonlinear_logs(rows_test, 8, c, seed=int(c*1000)))
         df.to_csv(test_path, index=False)
-
+        paths.append(test_path)
         orig, gz, gz_t, gun_t = gzip_stats(test_path)
         X = df.values.astype(np.float32)
         Xs = scaler.transform(X)
-
         t0 = time.time(); Z = enc.predict(Xs, verbose=0); t1 = time.time()
         enc_t = t1 - t0
         comp_bytes, comp_size, scales, comp_t = compress_latent(Z)
-
         t2 = time.time(); Xhat_s = dec.predict(Z, verbose=0); t3 = time.time()
         dec_t = t3 - t2
         Xhat = scaler.inverse_transform(Xhat_s)
-
         metrics = reconstruction_metrics(X, Xhat)
-
         results.append({
             "corr": c, "orig": orig, "gzip": gz,
             "gzip_t": gz_t, "gunzip_t": gun_t,
@@ -161,18 +142,21 @@ def run_full_experiment(workdir="learned_full_exp_metrics", n_train=20, rows_tra
             "nn_enc": enc_t + comp_t, "nn_dec": dec_t,
             **metrics
         })
-
     df = pd.DataFrame(results)
     df["gzip_ratio"] = df["gzip"] / df["orig"] * 100
     df["nn_ratio"] = (df["nn_model"] + df["nn_latent"]) / df["orig"] * 100
-
+    summary_path = os.path.join(workdir, "results_summary.csv")
+    df.to_csv(summary_path, index=False)
+    zip_path = os.path.join(workdir, "dataset.zip")
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for f in paths:
+            zipf.write(f, os.path.basename(f))
+    print(f"[+] All CSVs zipped into {zip_path}")
     print(df[["corr","Accuracy","Precision","Recall","F1","MSE","RMSE"]].to_string(index=False, formatters={k:"{:.3f}".format for k in ["corr","Accuracy","Precision","Recall","F1","MSE","RMSE"]}))
     print(f"\nAvg Compression Ratios: GZIP={df['gzip_ratio'].mean():.2f}% | NN={df['nn_ratio'].mean():.2f}%")
-
-
+    idx = np.arange(len(df))
+    barw = 0.35
     plt.figure(figsize=(8,4))
-    barw=0.35
-    idx=np.arange(len(df))
     plt.bar(idx-barw/2,df["gzip_t"],barw,label="GZIP Compress")
     plt.bar(idx+barw/2,df["nn_enc"],barw,label="NN Encode")
     plt.bar(idx-barw/2,df["gunzip_t"],barw,bottom=df["gzip_t"],label="GZIP Decompress")
@@ -180,10 +164,8 @@ def run_full_experiment(workdir="learned_full_exp_metrics", n_train=20, rows_tra
     plt.xticks(idx,[f"{c:.2f}" for c in df["corr"]])
     plt.ylabel("Seconds")
     plt.title("Encode/Decode Timing Comparison")
-    plt.legend()
-    plt.tight_layout()
+    plt.legend(); plt.tight_layout()
     plt.savefig(os.path.join(workdir,"compression_time_comparison.png"))
-
     plt.figure(figsize=(8,5))
     barw=0.25
     plt.bar(idx-barw, df["orig"]/1024, width=barw, label="Original", color="#AAAAAA")
@@ -193,10 +175,8 @@ def run_full_experiment(workdir="learned_full_exp_metrics", n_train=20, rows_tra
     plt.xticks(idx,[f"{c:.2f}" for c in df["corr"]])
     plt.ylabel("Size (KB)")
     plt.title("Compression Size Comparison")
-    plt.legend()
-    plt.tight_layout()
+    plt.legend(); plt.tight_layout()
     plt.savefig(os.path.join(workdir,"compression_size_comparison.png"))
-
     plt.figure(figsize=(8,5))
     plt.plot(df["corr"], df["Precision"], "o-", label="Precision")
     plt.plot(df["corr"], df["Recall"], "s-", label="Recall")
@@ -205,11 +185,9 @@ def run_full_experiment(workdir="learned_full_exp_metrics", n_train=20, rows_tra
     plt.xlabel("Correlation Strength")
     plt.ylabel("Metric Value")
     plt.title("Reconstruction Metrics vs Correlation")
-    plt.legend()
-    plt.grid(alpha=0.3)
+    plt.legend(); plt.grid(alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(workdir, "reconstruction_metrics_vs_corr.png"))
-
     print("[+] All plots saved in", workdir)
     return df
 
